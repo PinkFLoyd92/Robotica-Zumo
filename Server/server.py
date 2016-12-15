@@ -1,27 +1,23 @@
 import sys
 import time
 import SocketServer
+from cv import calcularContorno
 
 
 class MyTCPHandler(SocketServer.BaseRequestHandler):
-    """
-    The request handler class for our server.
-
-    It is instantiated once per connection to the server, and must
-    override the handle() method to implement communication to the
-    client.
-    """
-
     def handle(self):
+        self.procesado = False
         self.data = ""
-        # self.request is the TCP socket connected to the client
-        print "Nuevo cliente"
-        while(self.data != "out"):
+        print "Conectado ev3"
+        while(True):
             self.data = str(self.request.recv(1024).strip())
-            if(self.data == ""):
-                print "conexion interrumpida..."
-            elif(self.data != "out"):
-                print "Datos: ... {}".format(self.data)
+            print "Datos: ... {}".format(self.data)
+            if(self.data == "procesar_imagen"):
+                self.procesado = calcularContorno()
+                if self.procesado is True:
+                    self.request.sendall("success")
+                else:
+                    self.request.sendall("mal_procesamiento")
 
 
 if __name__ == "__main__":
@@ -32,3 +28,5 @@ if __name__ == "__main__":
     # corre el servidor por siempre a
     # menos que se termine el programa con Ctrl-c
     server.serve_forever()
+
+main()
